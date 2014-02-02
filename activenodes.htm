@@ -1,0 +1,1258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html lang="en">
+<head>
+<title> WegaLink - ActiveNodes </title>
+<link rev="made" href="http://wegalink.eu">
+<STYLE TYPE="text/css">
+<!--
+TD{font-size: 13pt;}
+--->
+</STYLE>
+</head>
+<body  bgcolor="#F0F0F0" text="#000000" style="background-image:url(./img/wegalink_background.jpg); background-attachment:fixed;background-repeat:repeat;">
+
+<h1> <center> ActiveNodes - Hierarchical data processing in a parallel way </center></h1>
+<hr>
+
+<font size=4>
+<h2> Objectives </h2>
+
+<p> The ActiveNodes concept aims at overcoming limitations of existing data representation
+methods like file systems along with specific file formats like e.g. XML. The main objective
+is to get to a conceptually unlimited data representation. Further, a general way of acting
+on data items is intended by this concept. The final goal thus is to allow for working on
+any kind of data by defining its inner and outer relations without a need for programming
+any software. The intention could shortly be summarized "defining instead of programming".
+
+<h2> Basic concept </h2>
+
+<p> In the following, a set of definitions will be given for the elements that this concept is 
+dealing with.
+
+
+<p><hr>
+<p><strong> Hierarchy </strong>
+<br> A hierarchy will be a sequence of nodes where adjacent nodes have a parent-child 
+relationship. There may be one or multiple nodes on each level. 
+
+<p> All nodes have a name and an order number on its respective level. A name may be a bit 
+field of appropriate length or a reference to another node, which both represent <strong> the 
+identifier as well as the data content </strong> of a node. Multiple nodes may have the same 
+name (=data) assigned on a given level, however, they will always have a unique order number.
+
+<p><img src="./img/hierarchy.gif">
+
+
+<p><hr>
+<p><strong> Top node identifiers </strong>
+
+<br> The top node of a hierarchy is supposed to have a name assigned which is unique "in our 
+universe" (universally unique). It is out of scope of this document to describe how to get to 
+a "universally unique" identifier. One possible approach has been developed and described in 
+the <a href="http://wegalink.eu/development/datax/index.htm" target=_top> "DataX" 
+documentation </a>, e.g. "EKD@JO58nc_Türkenfeld.TimewaveDetector":
+<ul><li> EKD - Eckhard Kantz, Dambeck (initials + first letter of place of birth)
+</li><li> JO58nc_Türkenfeld - a "locator" and town
+</li><li> TimewaveDetector - equipment and application
+</li></ul>
+The described concept allows for having an unlimited number of distinct hierarchies in the realm 
+of our universe as well as of parallel universes, given that unique identifiers can be found for 
+the top nodes of those hierarchies.
+
+<p><img src="./img/uuri.gif">
+
+
+<p><hr>
+<p><strong> Path </strong>
+<br> A path identifies a node inside a hierachy. It consists of the name of all nodes, starting 
+from the top node down to the node that is referenced. Node names will be connected by a 
+delimiter. In the scope of this document, a 'dot' will serve as a delimiter, e.g. 
+path = UURI.Node_1..Node_N-1.Node_N
+
+<p><img src="./img/path.gif">
+
+
+<p><hr>
+<p><strong> Delimiter </strong>
+<br> Particular elements on a path are said to be separated by implicit delimiters. For special 
+purposes which are explained later, there might be one explicit delimiter added in the end of a 
+path. That delimiter will be a final delimiter which can not be extended by any child nodes. 
+Further, an explicit final delimiter will have no value. One can also say that it represents 
+"emptyness", an empty node.
+
+<p><img src="./img/delimiter.gif">
+
+
+<p><hr>
+<p><strong> Link </strong>
+<br> A subtree of one hierarchy can become a subtree of a second hierarchy. The subtree in the 
+first hierarchy will be identified in the second hierarchy by the UURI of the first hierarchy 
+and a relative path inside that hierarchy. 
+
+<p> Subsequently, the referenced subtree becomes an identical instance as in the first 
+hierarchy. When dealing with the subtree either in the first or in the second hierarchy, it 
+will not be possible to distinguish both instances from each other. 
+
+<p> A linked node will maintain a list with all nodes that have established a link to that 
+node. This allows for notifications about changes that are sent to all nodes which need to know 
+about it as it will be explained for "Propagating changes across links".
+
+<p><img src="./img/link.gif">
+
+
+<p><hr>
+<p><strong> Reference </strong>
+<br> In opposite to a link, a reference points to a copy of a path, whereat the copy is part of 
+own hierarchy where the node lives that holds a reference to another node. From implementation 
+point of view, a reference looks like a link without maintaining a link list. The special 
+meaning of being a reference results from the way how it is processed, e.g. by an "Active node". 
+
+<p> Thus a reference could be seen as a template which starts with the UURI of a hierarchy and 
+which is capable of generating new subtrees in foreign or in own hierarchy as a copy of those 
+template subtrees.
+
+<p><img src="./img/reference.gif">
+
+
+<p><hr>
+<p><strong> Change Triggered Action </strong>
+<br> An "active" concept for processing hierarchical data requires taking action whenever some 
+information changes inside a hierarchical data structure. This will be done by an alert from a 
+changed node to an "action" node that is above a changed node in terms of hierarchy. 
+
+<p> It is the task of a changed node to find an action node along its path upwards. An 
+"ActiveNodes" hierarchy can expose action nodes on many paths. However, it has always to have 
+an action node connected to the root node. This is a basic requirement for any live 
+"ActiveNodes" hierarchy.
+
+<p><img src="./img/change_triggered_action.gif">
+
+
+<p><hr>
+<p><strong> Propagating changes across links </strong>
+<br> When a linked node was changed or if a linked node receives a change notification, then it 
+will propagate the change event to all nodes that are linked to the same origin in parallel to 
+forwarding the change locally inside the hierarchy where that change took place. Propagation of 
+a change will be done by an action command as described in the following.
+
+
+<p><img src="./img/propagating_changes_across_links.gif">
+
+
+<p><hr>
+<p><strong> Active node </strong>
+<br> A subordinate node at position 0 has a special meaning. If it is present and if it has 
+at least Node_N-0-1 connected then the parent node becomes an active node and its child node
+at position 0 becomes the root of an action command set. An action command set describes all 
+operations that will be performed when the active node is triggered by a change notification.
+
+<p><img src="./img/active_node.gif">
+
+
+<p><hr>
+<p><strong> Action Command Set - destination </strong>
+<br> Nodes on the first level below the top node of an action command set (its child nodes) 
+will become destination nodes. They contain references to write positions inside same or a 
+foreign hierarchy. A reference points to another node, however, the node itself that holds the 
+reference, preserves its independence and thus it should not be confused with a link where a 
+node becomes identical to the linked node and loses its independence.
+
+<p><img src="./img/action_command_set_destination.gif">
+
+<p> Existing information on a destination can be extended or be deleted, dependent on the 
+presence or absence of a delimiter in the end of a Path:
+<table >
+ <tr><td width=180><ul><li> Path </td><td> existing information on 'Path' will be extended </tr></td> </li></ul>
+ <tr><td><ul><li> Path&lt;delimiter&gt; </td><td> existing Path will be deleted </tr></td> </li></ul>
+</table>
+
+
+<p><hr>
+<p><strong> Action Command Set - source </strong>
+<br> Each destination position reference has zero, one or multiple source position references. 
+Data from source positions will be transferred to specified destination position whenever the 
+active node is triggered by any local or remote hierarchy changes. If no source was specified, 
+then the destination position will just be notified about a change. This causes the action 
+command set at destination position to be executed. If an action command set is missing at 
+destination position, then the hierarchy will be traveled upwards until an active nodes is 
+found and that active node will be triggered for taking action.
+
+<p><img src="./img/action_command_set_source.gif">
+
+<p> A particular source node can be copied to a destination position or it can be linked to 
+that position, dependent on the presence or absence of a delimiter in the end of a Path:
+<table >
+ <tr><td width=180><ul><li> Path </td><td> a node will be copied from a source to a destination 
+   position </tr></td> </li></ul>
+ <tr><td><ul><li> Path&lt;delimiter&gt; </td><td> a link to a source node will be inserted at 
+   destination position </tr></td> </li></ul>
+</table>
+
+
+<p><hr>
+<p><strong> Action Command Set - condition/operation </strong>
+<br> A source path can be related to a condition which decides, whether a copy/link operation 
+will be performed or not. Conditions will be connected to a source node as child nodes. If  
+child nodes do not exist for a source node then the source node will be copied/linked 
+unconditionally, as it is. In case of multiple child nodes below a source node the copy/link 
+operation will be performed whenever at least one condition evaluates to true. 
+
+<p>The rules for evaluating a condition are specific to the type of the action node. Dependent 
+on the action node type there might be a complex hierarchy of nodes connected to a condition 
+node which content in total evaluates to true or false. In particular, an action node might 
+treat condition nodes as references which existence or value might become a component in the 
+evaluation process for a true or false condition.
+
+<p><img src="./img/action_command_set_condition_operation.gif">
+
+<p> An action node might also choose to treat the child nodes of a source node as operands 
+instead of conditions. In this case a mathematical operation will be performed with the source 
+node's value as input. The result of that operation will be written to the destination node. 
+Similar to conditions, the type of the action node will decide upon the way how operands will 
+be processed. In particular, an action node might treat operands also as references in order to 
+process the values of multiple source positions into one result which will be written to 
+specified destination position.
+
+
+
+<p><hr>
+<p><strong> Access control list </strong>
+<br> Each ActiveNodes hierarchy may maintain an access control list. It will be located below
+the node that represents the identifier of that hierarchy (last node of the path representing
+the hierarchy's UURI, where also the root's Value points to).
+
+<p><img src="./img/access_control_list.gif">
+
+<p> The 'restricted_ActiveNode' level will contain a reference to a particular ActiveNode in case
+it has to be restricted. If that level does not contain an entry for a given ActiveNode than that 
+ActiveNode will not be restricted (all operations are allowed for everyone in that case).
+
+<p> In case of multiple entries of the same ActiveNode, the first entry will be the active one 
+and it will effectively control all access rights. Other entries might be useful for generating 
+alternative access schemes which could be activated by putting them to the head of the chain of 
+all ActiveNodes inside the access control list. 
+
+<p> The 'enabled_access_group' level will contain those access groups which will be granted access 
+to a particular ActiveNode. An empty node will unconditionally grant access to all access groups.
+
+<p> The "enabled_operation" level will specify those operations that members of an access group
+have access to. An empty node will grant access to all operations of a given ActiveNode.
+
+
+
+<p><hr>
+<p><strong> User role access groups </strong>
+<br> Detailed access to ActiveNodes' particular operations can be controlled by a 'user - role -
+access group' scheme. An empty node on the ActiveNodes level inside the access control list
+will be the entry to user/role data and to access groups.
+
+<p><img src="./img/user_role_access_groups.gif">
+
+<p> On the 'user_identification' level there will be an entry for each user for whom access to
+the ActiveNodes hierarchy needs to be controlled. Further the 'role_identification' level allows 
+for maintaining extended access rights for a user in case of an identification for a certain role. 
+
+<p> On the 'access_group' level there can be any number of entries, indicating what access groups 
+a user currently belongs to while taking all roles into account that a user has successfully
+passed identification for. Independently whether a role was specified or not, all access groups 
+below an empty entry on the 'role_identification' level will always apply.
+
+
+
+<p><hr>
+<p><strong> Access group hierarchy </strong>
+<br> Access rights can be structured using a hierarchy of access groups. An empty node on the
+'user_identification' level of an ActiveNodes access control list will be the top of a hierarchy.
+The empty top node should not grant any access rights thus blocking all access to an ActiveNode. 
+This is because access rights expand when traveling down a path in the hierarchy. Therefore the 
+leave nodes will usually grant most rights while adding also all rights from superior nodes.
+
+<p><img src="./img/access_group_hierarchy.gif">
+
+<p> HINT: It is not intended to revoke any access rights which have been granted on higher levels.
+If this is needed then the hierarchy needs to be restructured such that a leave node is always
+allowed to inherit all rights from superior nodes. 
+
+
+<p><hr>
+<h2> Implementation design </h2>
+
+<p><hr>
+<p><strong> Node </strong>
+
+<p> A node will maintain four references to other nodes with the following meanings:
+
+<ul><li> Value
+</li><li> Parent
+</li><li> Child 
+</li><li> Next (sibling, parent's next child)
+</li></ul>
+
+<p><img src="./img/node_implementation.gif">
+
+
+<p><hr>
+<p><strong> Root node </strong>
+
+<p> A node will be recognized as a root node whenever its parent reference points to the node 
+itself. The reference to a next node may point to a next root node in this case, thus 
+connecting all root nodes in a chain. A first root node is referenced by a global pointer
+and at the last root node in the chain, Next points to the node itself.
+
+<p><img src="./img/root_node_implementation.gif">
+
+
+<p><hr>
+<p><strong> Active node </strong>
+
+<p> An active node will have references to an action table and to an action workspace in addition 
+to a node's general references. An action table contains general functions as well as one 
+'onChangeAction' function which is specific to the type of a particular ActiveNode. Instance data
+of an ActiveNode is stored in an ActionWorkspace which contains general variables as well as a 
+pointer to a specificWorkspace. The specific workspace will be used whenever a particular
+ActiveNode needs specific data for running the onChangeAction or a modified implementation of
+the general functions
+
+<p><img src="./img/active_node_implementation.gif">
+
+
+<p><hr>
+<p><strong> Non-active </strong>
+
+<p> A non-active node will be identified by an empty command set at child-0. The Child reference 
+of child-0 points to the node itself in this case.
+
+<p><img src="./img/non-active_implementation.gif">
+
+<p> In a second scenario, a non-active node might have a child node-0-0 assigned, however
+that child node-0-0 would not have any siblings assigned to its Next pointer.
+
+<p><img src="./img/non-active_implementation_2.gif">
+
+
+<p><hr>
+<p><strong> Single child </strong>
+
+<p> A node can have a single child without the need of attaching node_0 to it. This can be
+used e.g. when building huge value hierarchies where an unused node_0 would double the memory
+requirement in case of many single nodes. In case of two or more child nodes, however, a node_0 
+must always be present also when it is not needed from the logical point of view. 
+
+<p> Thus in worst case there would be one unused node_0 for two actually used nodes which provides 
+to 50% overhead. In average, the overhead will be much lower than 50% since part of nodes might be 
+single nodes without any overhead and another part could be more than two nodes with less than 
+50% overhead.
+
+<p> A single-child implementation is done by connecting the Next pointer to the Parent pointer
+as well which will be recognized as the indicator for single-child. 
+
+<p><img src="./img/single_child_implementation.gif">
+
+
+<p><hr>
+<p><strong> Link </strong>
+
+<p> A link is a special case where Value and Child references will be taken from a linked node.
+A node will be recognized as a link whenever the Value points to a root node. The Child points
+to the respective linked node in this case.
+
+<p> A linked node maintains a list of nodes from which a link has been established to it. That 
+list is made from nodes which are all connected as Child_0 to the linked node or to a predecessor
+in the list of nodes that maintain a link herewith.
+
+<p><img src="./img/link_implementation.gif">
+
+
+<p><hr>
+<p><strong> Reference count </strong>
+
+<p> Whenever a node is referenced by another node, a reference counter will be incremented which
+is effectively the Value of child_0 of the referenced node. That Value will point e.g. to an 
+initial node which value represents current reference count.
+
+<p> The reference count is used for maintaining a hierarchy. Whenever a reference counter goes
+to zero the node might be deleted the next time a garbage collection run is performed.
+
+<p><img src="./img/reference_count_implementation.gif">
+
+
+<p><hr>
+<p><strong> Delimiter </strong>
+
+<p> A delimiter is implemented as a link to a node itself. Since a delimiter's child reference 
+points back to current node, it will not be possible to add any child nodes. This is intended 
+because an explicit delimiter represents a final end point of a path.
+
+<p><img src="./img/delimiter_implementation.gif">
+
+
+<p><hr>
+<p><strong> Value </strong>
+
+<p> A basic value will be represented by the position that a node occupies in the child node 
+chain of its parent. The value reference will point to the node itself in this case.
+
+<p>Complex values will be implemented by a chain of simple/complex values. In this case the 
+value reference points to the last node in the chain of nodes that represents a value. The chain 
+will be followed backwards until the root node is reached. The value of the root node will not 
+be taken into account.
+
+<p><img src="./img/value_implementation.gif">
+
+<p><hr>
+<p><strong> Initial values </strong>
+
+<p> Initial values are implemented as an array of e.g. 65536 nodes:
+
+<p> Node InitialValues[] = {node_0, node_1, ... , node_65535}
+
+<p> Knowing the address of a certain node in that InitialValues array, the actual value will be
+determined based on the difference of address pointers of current node and first node:
+
+<p> Value(node_N) = (Address(node_N) - Address(node_0)) / sizeof(Node)
+
+<p> Obviously all nodes in the array have to be stored with regularly ascending addresses.
+
+<p><img src="./img/initial_value_implementation.gif">
+
+
+<p><hr>
+<h2> Interface design </h2>
+
+<p> An application can get acces to ActiveNodes by first acquiring a mutex and subsequently 
+sending a request. Actual data exchange will take place by data (value, =bit field) sent to a 
+specified node of an ActiveNodes hierarchy and by receiving response data (value, =bit field) 
+from those nodes with which the application has registered.
+
+<p><img src="./img/application_interface.gif">
+
+<p>The single access point concept for ActiveNodes aims at robustness in communication as well 
+as at access control. Robustness is enhanced by sending a plain data token (request) to the 
+guard of an ActiveNodes hierarchy. The guard process first checks the structure of each 
+received request. In case the request structure is according to its requirements, the guard 
+will try to get back to the application. This procedure will confirm that ActiveNodes and an 
+application are able to exchange data successfully. Further the opening process may involve an 
+authorization procedure as well as a negotiation for data encryption for all subsequent traffic.
+
+<p> After a succeccful opening process an application might register for downstream data feeds 
+or it can apply for upstream data transfer. In a basic access scheme, an application might run
+a one-time access to an ActiveNodes hierarchy where upstream data is transferred to the 
+ActiveNodes hierarchy and where a downstream is received by the application which has been 
+initiated by the previously transferred upstream data.
+
+<hr>
+
+
+<pre><code><font color="#000000">
+<font color="#008040">//////////////////////////////////////////////////////////////////////////////
+//
+// ANodes.h: Declaration of an ActiveNodes module
+//
+//////////////////////////////////////////////////////////////////////////////
+//
+// Author:     Eckhard Kantz
+// Website:    wegalink.eu
+//
+//////////////////////////////////////////////////////////////////////////////
+/* 
+This is FREE software 
+
+Permission is hereby granted, free of charge,  to any person obtaining  a copy 
+of this software and associated documentation files (the &quot;Software&quot;),  to deal 
+in the Software without restriction, including without limitation  the  rights 
+to use,  copy,  modify,  merge,  publish,  distribute, sublicense, and/or sell 
+copies  of  the  Software,   and  to  permit  persons  to  whom  the  Software 
+is furnished to do so, subject to the following conditions: 
+
+There are no conditions imposed on the use of this software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;,  WITHOUT  WARRANTY  OF ANY KIND,  EXPRESS OR
+IMPLIED,  INCLUDING  BUT  NOT  LIMITED  TO  THE  WARRANTIES OF MERCHANTABILITY,
+FITNESS  FOR  A  PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS  OR  COPYRIGHT  HOLDERS  BE  LIABLE  FOR  ANY CLAIM,  DAMAGES OR OTHER
+LIABILITY,  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN  THE
+SOFTWARE.
+*/</font>
+
+<font color="#8080c0">#ifndef ANodesH
+#define ANodesH</font>
+
+<font color="#008040">/* Compiler dependent includes and defines */</font>
+<font color="#8080c0">#include &quot;types.h&quot;</font>
+
+<font color="#008040">/***********************************************************************
+*  General data types, relevant for interfacing to ActiveNodes
+***********************************************************************/
+
+/** Timestamp structure
+ *  A timestamp structure allows for specifying a send and a receive
+ *  time, each consisting of a ticks and a frequency value. Whenever
+ *  required, those values can be converted into absolute or relative
+ *  time values.
+ *
+ *  Because of a usually short travel time from sender to receiver, it
+ *  will be possible to determine the relation to UTC on both sides,
+ *  sender and receiver unambiguously, given that both sides maintain
+ *  an accurate clock that is synchronized with UTC.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  __int64 SendTicks<font color="#ff0000">;</font>
+  __int64 SendFrequency<font color="#ff0000">;</font>
+  __int64 ReceivedTicks<font color="#ff0000">;</font>
+  __int64 ReceivedFrequency<font color="#ff0000">;
+
+}</font> Timestamp<font color="#ff0000">;</font>
+
+<font color="#008040">/** Value structure 
+ *  A value represents a bit field of an extrem range. It may be as
+ *  small as a single bit for representing boolean values. On the other
+ *  hand it may represent a bit field of unthinkable huge length, as for
+ *  example &quot;all atoms in the universe&quot;, or the like. 
+ *
+ *  The extrem dynamic range is accomplished by a Size feature which
+ *  serves as an exponent base two for a DataBits variable.
+ *
+ *  Creation and delivery of a value is tracked by timestamps because of
+ *  the main purpose of a Value for transferring data from a sender to a 
+ *  receiver. One side may be a remote one why it is important to track
+ *  the travel time from sender to receiver.
+ */</font>
+<font color="#8080c0">#define SIZE_POINTER sizeof(unsigned char *)</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>DataBytes<font color="#ff0000">;</font>  <font color="#008040">/* pointer to a DataBytes field          */</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>DataBits<font color="#ff0000">;</font>   <font color="#008040">/* pointer to a DataBits field           */</font>
+  Timestamp <font color="#ff0000">*</font>Time<font color="#ff0000">;</font>           <font color="#008040">/* pointer to a timestamp structure      */</font>
+  <font color="#0000ff">unsigned char</font> Magic<font color="#ff0000">[</font>SIZE_POINTER<font color="#ff0000">];</font>
+                             <font color="#008040">/* size of bit field length [bits]       */
+                             /* 00000000: 2^0 =   1 bit               */
+                             /* 00000001: 2^1 =   2 bits              */
+                             /* 00000011: 2^2 =   4 bits              */
+                             /* 00000111: 2^3 =   8 bits              */
+                             /* 00001111: 2^4 =  16 bits              */
+                             /* 00011111: 2^5 =  32 bits              */
+                             /* 00111111: 2^6 =  64 bits              */
+                             /* 01111111: 2^7 = 128 bits              */
+                             /* 11111111: 2^8 = 256 bits              */</font>
+<font color="#8080c0">#define ACTIVE_NODES_MAGIC          0xFEDCBA9876543200 
+#define ACTIVE_NODES_MASK           0xFFFFFFFFFFFFFF00
+#define ACTIVE_NODES_MAGNITUDE      0x00000000000000FF</font>
+<font color="#008040">// Coding for magnitudes of bit field lengths</font>
+<font color="#8080c0">#define ACTIVE_NODES_MAGNITUDE_1    0x0000000000000000
+#define ACTIVE_NODES_MAGNITUDE_2    0x0000000000000001
+#define ACTIVE_NODES_MAGNITUDE_4    0x0000000000000003
+#define ACTIVE_NODES_MAGNITUDE_8    0x0000000000000007
+#define ACTIVE_NODES_MAGNITUDE_16   0x000000000000000F
+#define ACTIVE_NODES_MAGNITUDE_32   0x000000000000001F
+#define ACTIVE_NODES_MAGNITUDE_64   0x000000000000003F
+#define ACTIVE_NODES_MAGNITUDE_128  0x000000000000007F
+#define ACTIVE_NODES_MAGNITUDE_256  0x00000000000000FF</font>
+<font color="#008040">// Boundaries for length values upto 32 bits</font>
+<font color="#8080c0">#define ACTIVE_NODES_BOUNDARY_1     0x0000000000000002
+#define ACTIVE_NODES_BOUNDARY_2     0x0000000000000004
+#define ACTIVE_NODES_BOUNDARY_4     0x0000000000000010
+#define ACTIVE_NODES_BOUNDARY_8     0x0000000000000100
+#define ACTIVE_NODES_BOUNDARY_16    0x0000000000010000
+#define ACTIVE_NODES_BOUNDARY_32    0x0000000100000000</font>
+
+<font color="#ff0000">}</font> Value<font color="#ff0000">;</font>
+
+<font color="#008040">/** ANodeStream
+ *  Information that is sent from a client to an ActiveNodes hierarchy
+ *  or vice versa.
+ *
+ *  The ActiveNodes server will delete an ANodesStream when the client 
+ *  signaled that it is not needed anymore by writing zero to the
+ *  ClientAlert handle.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  <font color="#008040">/*  Signaling: inform client about new DownStream data, respectively
+   *  let the ActiveNodes hierarchy know about new UpStream data.
+   */</font>
+  HANDLE ClientAlert<font color="#ff0000">;</font>      <font color="#008040">/* event handle in client process      */</font>
+  HANDLE ANodesAlert<font color="#ff0000">;</font>      <font color="#008040">/* event handle in ActiveNodes process */</font>
+  HANDLE StreamThread<font color="#ff0000">;</font>     <font color="#008040">/* handle to thread serving the stream */
+
+  /* UURI, relative Path and actual Data */</font>
+  Value <font color="#ff0000">*</font>UURI<font color="#ff0000">;</font>
+  Value <font color="#ff0000">*</font>Path<font color="#ff0000">;</font>
+  Value <font color="#ff0000">*</font>Data<font color="#ff0000">;</font>
+
+  <font color="#008040">/*  Access synchronization and response trigger:
+   *  If ANodesStreaming is true then a persistent Stream will be 
+   *  installed which subsequently can serve multiple UpStream 
+   *  requests respectively DownStream events. 
+   *  Otherwise, if the flag is false then a one-time data exchange
+   *  will take place for UpStream respectively for DownStream data.
+   *  A DownStream will not wait for a specific trigger in this case
+   *  but it will send back current content on requested UURI+Path.
+   *  In case of a streaming DownStream the flag will further serve
+   *  synchronization purposes. It will be set false when data is
+   *  on the way from an ANodes hierarchy to the requester. The 
+   *  DownStream requester has to set it back to true in order to
+   *  receive more DownStream data.
+   */</font>
+  <font color="#0000ff">bool</font> ANodesStreaming<font color="#ff0000">;
+
+}</font> ANodesStream<font color="#ff0000">;</font>
+
+<font color="#008040">/** AppForm
+ *  An application form is provided by an ActiveNodes hierarchy to a
+ *  program that requests access to the hierarchy. The AppForm enables
+ *  the client program to apply for establishing DownStream and UpStream 
+ *  channels.
+ *
+ *  An AppForm is also needed in case of a client program that intends 
+ *  to run a burst contact against an ActiveNodes hierarchy. 
+ *  A burst contact may be useful in case of a considerable delay in
+ *  communication between a client and an ActiveNodes hierarchy, e.g. 
+ *  when communicating from a base station on Earth to a space probe or 
+ *  vice versa.
+ *
+ *  The ActiveNodes server will delete an AppForm when the client 
+ *  signaled that it is not needed anymore by writing zero to the
+ *  ClientAlert handle.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  <font color="#008040">/* Signaling: Informing an ANodesGate about AppForm submitted */</font>
+  HANDLE ClientAlert<font color="#ff0000">;</font>         <font color="#008040">/* event handle in client process       */</font>
+  HANDLE ANodesAlert<font color="#ff0000">;</font>         <font color="#008040">/* event handle in ActiveNodes process  */</font>
+  HANDLE AppFormThread<font color="#ff0000">;</font>       <font color="#008040">/* handle to thread serving the AppForm */
+
+  /* Security section */</font>
+  Value <font color="#ff0000">*</font>Challenge<font color="#ff0000">;</font>       <font color="#008040">/* data to be encrypted by the peer         */</font>
+  Value <font color="#ff0000">*</font>Response<font color="#ff0000">;</font>        <font color="#008040">/* data that has been encrypted by the peer */
+
+  /* Data section */</font>
+  Value <font color="#ff0000">*</font>DownStreamList<font color="#ff0000">;</font>  <font color="#008040">/* request list for downstream data feeds   */</font>
+  Value <font color="#ff0000">*</font>UpStreamList<font color="#ff0000">;</font>    <font color="#008040">/* request list for upstream data access    */</font>
+
+<font color="#ff0000">}</font> AppForm<font color="#ff0000">;</font>
+
+<font color="#008040">/** ActiveNodesRequest
+ *  An application will have to issue an ActiveNodesRequest to an
+ *  ActiveNodesGate in order to obtain access to functionality of an 
+ *  ActiveNodes hierarchy.
+ *
+ *  From a system robustness point of view, a successful acquisition
+ *  of an ActiveNodesGate's mutex and further writing a request would 
+ *  confirm that a client has valid read/write access to ActiveNodes' 
+ *  process memory.
+ *
+ *  An ActiveNodesGate will first evaluate a client's certificate. It
+ *  is allowed and supposed to discard a request silently in case of
+ *  an invalid certificate or in case of any other reasons that would
+ *  prevent from establishing a communication to that client.
+ *
+ *  In case of a positive validation result, an ActiveNodesGate will
+ *  generate an application form and will send that AppForm back to
+ *  the client. This will confirm on success that the ActiveNodes 
+ *  process and the calling application are able to successfully 
+ *  exchange information with each other.
+ *
+ *  Further, an application or the ActiveNodes hierarchy might request 
+ *  for encrypting all data transfer that will follow, after the 
+ *  opening procedure for communication has been passed successfully.
+ *
+ *  The ActiveNodes server will delete an ActiveNodesRequest when the 
+ *  client signaled that it is not needed anymore by writing zero to the
+ *  ClientAlert handle.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  <font color="#008040">/* Signaling: Informing a client about AppForm availability */</font>
+  HANDLE ClientAlert<font color="#ff0000">;</font>         <font color="#008040">/* event handle in client process      */</font>
+  HANDLE ANodesAlert<font color="#ff0000">;</font>         <font color="#008040">/* event handle in ActiveNodes process */
+
+  /* Authorization: connects an identity to a public key */</font>
+  Value <font color="#ff0000">*</font>ClientCertificate<font color="#ff0000">;</font>
+  Value <font color="#ff0000">*</font>ANodesCertificate<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Applying for downstream feeds/upstream access */</font>
+  AppForm <font color="#ff0000">*</font>Form<font color="#ff0000">;
+
+}</font> ActiveNodesRequest<font color="#ff0000">;</font>
+
+<font color="#008040">/** ActiveNodesGate
+ *  An ActiveNodesGate allows for registering for downstream data feeds 
+ *  going from an ActiveNodes hierarchy to an application and to apply   
+ *  for upstream access to specified ActiveNodes paths by an application. 
+ *
+ *  In a basic access scheme, an application might communicate solely 
+ *  over the gate of an ActiveNodes hierarchy by each time establishing
+ *  all needed UpStreams and DownStreams for a one-time communication. 
+ *
+ *  That type of communication might be applicable in case of a 
+ *  considerable delay on the way from a client to an ActiveNodes 
+ *  hierarchy where the advantage of a fast communication by persistent
+ *  UpStreams and DownStreams disappears.
+ *
+ *  A client is supposed to always read and write all data based on an
+ *  ActiveNodes hierarchy's process ID. Therefore the process ID of an 
+ *  ActiveNodes hierarchy is published which allows clients to use it 
+ *  for all access functions.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  ActiveNodesRequest <font color="#ff0000">*</font>ANodesRequest<font color="#ff0000">;</font>            <font color="#008040">/* a client's request */</font>
+
+  HANDLE Access<font color="#ff0000">;</font>    <font color="#008040">/* mutex to be acquired before placing a request  */</font>
+  HANDLE Alert<font color="#ff0000">;</font>     <font color="#008040">/* event to be signaled when a request was placed */</font>
+  HANDLE GateThread<font color="#ff0000">;</font> <font color="#008040">/* handle to thread serving the gate             */</font>
+
+  <font color="#0000ff">int</font> ProcessID<font color="#ff0000">;</font>    <font color="#008040">/* to be checked for handle/memory access reasons */</font>
+
+<font color="#ff0000">}</font> ActiveNodesGate<font color="#ff0000">;</font>
+
+<font color="#008040">/* Common global access to an ActiveNodesGate and to memory management*/</font>
+<font color="#8080c0">#ifdef ACTIVE_NODES_GATE_IMPLEMENTATION</font>
+  ActiveNodesGate <font color="#ff0000">*</font>GlobalANodesGate <font color="#ff0000">=</font> NULL<font color="#ff0000">;</font>
+  <font color="#0000ff">void</font> <font color="#ff0000">**</font>GlobalANodesMemory <font color="#ff0000">=</font> NULL<font color="#ff0000">;</font>
+<font color="#8080c0">#else</font>
+  <font color="#0000ff">extern</font> ActiveNodesGate <font color="#ff0000">*</font>GlobalANodesGate<font color="#ff0000">;</font>
+  <font color="#0000ff">extern void</font> <font color="#ff0000">**</font>GlobalANodesMemory<font color="#ff0000">;</font>
+<font color="#8080c0">#endif</font>
+
+<font color="#008040">/***********************************************************************
+*  Internal data types, relevant for implementation of ActiveNodes
+***********************************************************************/
+
+/** Node structure
+ *  A node holds references to four other nodes
+ *   - Value
+ *   - Parent
+ *   - Child
+ *   - Next (sibling, parent's next child)
+ */</font>
+<font color="#0000ff">typedef struct</font> Node Node<font color="#ff0000">;</font>
+<font color="#0000ff">typedef struct</font> Node
+<font color="#ff0000">{</font>
+  Node <font color="#ff0000">*</font>Value<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Parent<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Child<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Next<font color="#ff0000">;
+};</font>
+
+<font color="#008040">/** ActionTable
+ *  An action table holds function pointers to a well defined set of 
+ *  actions which allow for operating an ActiveNodes hierarchy.
+ *  It is assumed that all nodes below a node with an action table 
+ *  (&quot;action node&quot;) belong to the same implementation as the action 
+ *  node itself. This assumption allows for applying functions related 
+ *  to an action node also to all nodes that belong to the subtree below 
+ *  that action node when processing any change request in the hierarchy.
+ */</font>
+<font color="#0000ff">typedef struct</font> ActionTable ActionTable<font color="#ff0000">;</font>
+
+<font color="#008040">/** ActionWorkspace
+ *  An action workspace provides for individual instance data (member 
+ *  variables) of every ActionNode instance whereas an ActionTable holds 
+ *  a unique set of functions (methods) for a given implementation of an 
+ *  ActiveNodes hierarchy.
+ */</font>
+<font color="#0000ff">typedef struct</font> ActionWorkspace ActionWorkspace<font color="#ff0000">;</font>
+
+<font color="#008040">/** ActiveNode structure
+ *  An active node has a reference to an action table and a workspace 
+ *  in addition to a node's general references.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  Node <font color="#ff0000">*</font>Value<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Parent<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Child<font color="#ff0000">;</font>
+  Node <font color="#ff0000">*</font>Next<font color="#ff0000">;</font>
+  ActionTable <font color="#ff0000">*</font>Action<font color="#ff0000">;</font>
+  ActionWorkspace <font color="#ff0000">*</font>Workspace<font color="#ff0000">;
+
+}</font> ActiveNode<font color="#ff0000">;</font>
+
+<font color="#008040">/** ActiveNodes global root
+ *  A pointer to a seed node will be an entry point to a chain of
+ *  root nodes.
+ */</font>
+<font color="#8080c0">#ifdef ACTIVE_NODES_IMPLEMENTATION</font>
+  Node <font color="#ff0000">*</font>ANodesSeed <font color="#ff0000">=</font> NULL<font color="#ff0000">;</font>
+<font color="#8080c0">#else  </font>
+  <font color="#0000ff">extern</font> Node <font color="#ff0000">*</font>ANodesSeed<font color="#ff0000">;</font>
+<font color="#8080c0">#endif</font>
+
+<font color="#008040">/** Actions
+ *  The following well defined set of functions allows for operating an 
+ *  ActiveNodes hierarchy. Most functions are equal for all ActiveNode types
+ *  and will thus be used from basic ActiveNodes implementation.
+ *  The actions to be taken on a change event, however, are specific to the
+ *  type of ActiveNode and they will be implemented in the 'onChangeAction' 
+ *  function. A pointer to that function has therefore to be provided to the
+ *  createNode() function as an argument.
+ *  An addition to a specific function for 'onChangeAction', also other
+ *  functions might be specific and their entries in the action table will be
+ *  overwritten by a specific implementation in that case.
+ */
+
+/* Check access rights */</font>
+<font color="#0000ff">typedef bool</font> <font color="#ff0000">(</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_checkAccessRights<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Node<font color="#ff0000">*);</font>
+
+<font color="#008040">/* Identifier of an ActiveNodes implementation (including version) */</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getIdentifier<font color="#ff0000">)();</font>
+
+<font color="#008040">/* Maintaining a hierarchy */</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_putValue<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Value<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_copyNode<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_linkTree<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_deletePath<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+
+<font color="#008040">/* Processing changes in an ActiveNode's subtree */</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_notifyActiveNode<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef void</font>   <font color="#ff0000">(</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_onChangeAction<font color="#ff0000">)();</font>
+
+<font color="#008040">/* Value access methods */</font>
+<font color="#0000ff">typedef bool</font> <font color="#ff0000">(</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_readValue<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Value<font color="#ff0000">**);</font>
+<font color="#0000ff">typedef bool</font> <font color="#ff0000">(</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_cmpValue<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Value<font color="#ff0000">*);</font>
+
+<font color="#008040">/* Navigation methods */</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getValue<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getParent<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getChild<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getNext<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getRoot<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_getActive<font color="#ff0000">)(</font>Node<font color="#ff0000">*);</font>
+
+<font color="#008040">/* Maintaining Nodes instances */</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_searchRoot<font color="#ff0000">)(</font>Value<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_createRoot<font color="#ff0000">)(</font>Value<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_searchPath<font color="#ff0000">)(</font>Node<font color="#ff0000">*,</font>Value<font color="#ff0000">*);</font>
+<font color="#0000ff">typedef</font> Node <font color="#ff0000">* (</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_createNode<font color="#ff0000">)(</font>Action_onChangeAction<font color="#ff0000">);</font>
+<font color="#0000ff">typedef void</font> <font color="#ff0000">(</font><font color="#0000ff">__stdcall</font> <font color="#ff0000">*</font>Action_deleteNode<font color="#ff0000">)(</font>Node<font color="#ff0000">**);</font>
+
+<font color="#008040">/* ActionTable */</font>
+<font color="#0000ff">struct</font> ActionTable
+<font color="#ff0000">{</font>
+  <font color="#008040">/* Check access rights */</font>
+  Action_checkAccessRights checkAccessRights<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Identifier of an ActiveNodes implementation (including version) */</font>
+  Action_getIdentifier getIdentifier<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Maintaining a hierarchy */</font>
+  Action_putValue putValue<font color="#ff0000">;</font>
+  Action_copyNode copyNode<font color="#ff0000">;</font>
+  Action_linkTree linkTree<font color="#ff0000">;</font>
+  Action_deletePath deletePath<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Processing changes in an ActiveNode's subtree */</font>
+  Action_notifyActiveNode notifyActiveNode<font color="#ff0000">;</font>
+  Action_onChangeAction onChangeAction<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Value access methods */</font>
+  Action_readValue readValue<font color="#ff0000">;</font>
+  Action_cmpValue cmpValue<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Navigation methods */</font>
+  Action_getValue getValue<font color="#ff0000">;</font>
+  Action_getParent getParent<font color="#ff0000">;</font>
+  Action_getChild getChild<font color="#ff0000">;</font>
+  Action_getNext getNext<font color="#ff0000">;</font>
+  Action_getRoot getRoot<font color="#ff0000">;</font>
+  Action_getRoot getActive<font color="#ff0000">;</font>
+
+  <font color="#008040">/* Maintaining Nodes instances */</font>
+  Action_searchRoot searchRoot<font color="#ff0000">;</font>
+  Action_createRoot createRoot<font color="#ff0000">;</font>
+  Action_searchPath searchPath<font color="#ff0000">;</font>
+  Action_createNode createNode<font color="#ff0000">;</font>
+  Action_deleteNode deleteNode<font color="#ff0000">;
+};</font>
+
+
+<font color="#008040">/***********************************************************************
+*  ActiveNodes interface functions and return codes
+***********************************************************************/</font>
+<font color="#0000ff">typedef enum</font>
+<font color="#ff0000">{</font>
+  ANODE_OK                        <font color="#ff0000">=  0,</font>
+  ANODE_ERROR                     <font color="#ff0000">= -1,</font>
+  ANODE_MEMORY_MANAGEMENT_FAILED  <font color="#ff0000">= -2,</font>
+  ANODE_MEMORY_MANAGEMENT_DOWN    <font color="#ff0000">= -3,</font>
+  ANODE_INVALID_REQUEST           <font color="#ff0000">= -4,</font>
+  ANODE_INVALID_FORM              <font color="#ff0000">= -5,</font>
+  ANODE_INVALID_PARAMETER         <font color="#ff0000">= -6,</font>
+  ANODE_INVALID_VALUE             <font color="#ff0000">= -7,</font>
+  ANODE_INVALID_STREAM            <font color="#ff0000">= -8,</font>
+  ANODE_GATE_CREATION_FAILED      <font color="#ff0000">= -9,</font>
+  ANODE_GATE_INVALID_STATE        <font color="#ff0000">= -10,</font>
+  ANODE_GATE_ACCESS_TIMEOUT       <font color="#ff0000">= -11,</font>
+  ANODE_GATE_REQUEST_TIMEOUT      <font color="#ff0000">= -12,</font>
+  ANODE_GATE_THREAD_FAILED        <font color="#ff0000">= -13,</font>
+  ANODE_CLIENT_NOT_FINISHED       <font color="#ff0000">= -14,</font>
+  ANODE_UURI_IS_NOT_AVAILABLE     <font color="#ff0000">= -15,</font>
+  ANODE_PATH_IS_NOT_AVAILABLE     <font color="#ff0000">= -16,
+
+}</font> ANODE<font color="#ff0000">;</font>
+
+<font color="#008040">/** BurstRequest
+ *  The structure comprises all data that is needed for running a 
+ *  burst request (synchronous request) against an ActiveNodes
+ *  hierarchy.
+ */</font>
+<font color="#0000ff">typedef struct</font>
+<font color="#ff0000">{</font>
+  <font color="#008040">/* Application's identification and public encryption key */</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>Certificate<font color="#ff0000">;</font>
+  uint64 CertificateLength<font color="#ff0000">;</font>
+  <font color="#008040">/* Maximal waiting time for downstream [s] */</font>
+  <font color="#0000ff">float</font> DownStreamTimeout<font color="#ff0000">;</font>
+  <font color="#008040">/* Downstream data from ActiveNodes to an application */</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>DownStreamUURI<font color="#ff0000">;</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>DownStreamPath<font color="#ff0000">;</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">**</font>DownStreamData<font color="#ff0000">;</font>
+  uint64 DownStreamUURILength<font color="#ff0000">;</font>
+  uint64 DownStreamPathLength<font color="#ff0000">;</font>
+  uint64 <font color="#ff0000">*</font>DownStreamDataLength<font color="#ff0000">;</font>
+  <font color="#008040">/* Upstream data from application to ActiveNodes */</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>UpStreamUURI<font color="#ff0000">;</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>UpStreamPath<font color="#ff0000">;</font>
+  <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>UpStreamData<font color="#ff0000">;</font>
+  uint64 UpStreamUURILength<font color="#ff0000">;</font>
+  uint64 UpStreamPathLength<font color="#ff0000">;</font>
+  uint64 UpStreamDataLength<font color="#ff0000">;
+
+}</font> BurstRequest<font color="#ff0000">;</font>
+
+<font color="#008040">/** submitANodesRequest.
+ *  A burst request will run against an ActiveNodes hierarchy. The 
+ *  request consists of sending upstream data and of requesting for
+ *  downstream response data. 
+ *
+ *  Input data will be sent to an appropriate node in the ActiveNodes 
+ *  hierarchy that can handle a received http request. A http response 
+ *  will be generated and delivered to application by a downstream.
+ */</font>
+ANODE submitANodesRequest<font color="#ff0000">(</font> BurstRequest <font color="#ff0000">*</font>Burst <font color="#ff0000">);</font>
+
+<font color="#008040">/** createANodesStream.
+ *  An ANodeStream structure will be created if it does not exist.
+ *  Subsequently it will be filled in with received ANodeStream data.
+ *  Further, synchronization means will be added for communicating
+ *  seamlessly with the ActiveNodes hierarchy.
+ */</font>
+ANODE createANodesStream<font color="#ff0000">(</font> ActiveNodesGate <font color="#ff0000">*</font>ANodesGate<font color="#ff0000">,</font>
+                          ANodesStream <font color="#ff0000">**</font>Stream<font color="#ff0000">,</font>
+                          <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>UURI<font color="#ff0000">,</font>
+                          <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>Path<font color="#ff0000">,</font>
+                          <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>Data<font color="#ff0000">,</font>
+                          uint64 UURILength<font color="#ff0000">,</font>
+                          uint64 PathLength<font color="#ff0000">,</font>
+                          uint64 DataLength <font color="#ff0000">);</font>
+
+<font color="#008040">/** freeANodeStream.
+ *  The ANodeStream will be freed by closing the ClientAlert and 
+ *  clearing its entry to zero. This will be recognized by an 
+ *  ActiveNodes hierarchy that the stream is no longer in use and 
+ *  thus it can be deleted.
+ */</font>
+ANODE freeANodeStream<font color="#ff0000">(</font>ANodesStream <font color="#ff0000">*</font>Stream<font color="#ff0000">);</font>
+
+<font color="#008040">/** deleteANodeStream.
+ *  Memory occupied by a Stream will be released. Further the pointer
+ *  to the deleted ANodesStream will be cleared to zero.
+ */</font>
+ANODE deleteANodesStream<font color="#ff0000">(</font>ANodesStream <font color="#ff0000">**</font>Stream<font color="#ff0000">,</font> <font color="#0000ff">bool</font> FromClient<font color="#ff0000">);</font>
+
+<font color="#008040">/** clearANodeStream.
+ *  The data content of an ANodeStream will be cleared.
+ */</font>
+ANODE clearANodesStream<font color="#ff0000">(</font>ANodesStream <font color="#ff0000">*</font>Stream<font color="#ff0000">);</font>
+
+<font color="#008040">/** extendStreamList.
+ *  A list (an array) of streams will be extended by a further stream.
+ *  In case the list (the array) does not exist, it will be created.
+ */</font>
+ANODE extendStreamList<font color="#ff0000">(</font>Value <font color="#ff0000">**</font>ANodeStreamList<font color="#ff0000">,</font> ANodesStream <font color="#ff0000">*</font>Stream<font color="#ff0000">);</font>
+
+<font color="#008040">/** deleteStreamList.
+ *  Memory occupied by a StreamList will be released. Further the 
+ *  pointer to the stream list will be cleared to zero.
+ */</font>
+ANODE deleteStreamList<font color="#ff0000">(</font>Value <font color="#ff0000">**</font>StreamList<font color="#ff0000">);</font>
+
+<font color="#008040">/** createValue. 
+ *  A Value structure will be filled with received data. If it does not
+ *  exist then it will be created. 
+ */</font>
+ANODE createValue<font color="#ff0000">(</font>Value <font color="#ff0000">**</font>Val<font color="#ff0000">,</font> <font color="#0000ff">unsigned char</font> <font color="#ff0000">*</font>DataBytes<font color="#ff0000">,</font> uint64 DataBits<font color="#ff0000">);</font>
+
+<font color="#008040">/** deleteValue.
+ *  Memory occupied by a Value will be released and the Value pointer 
+ *  will be cleared to NULL. A DeleteDataBytes flag decides upon
+ *  whether or not the DataBytes will also be deleted when the Value
+ *  structure is deleted.
+ */</font>
+ANODE deleteValue<font color="#ff0000">(</font>Value <font color="#ff0000">**</font>Val<font color="#ff0000">,</font> <font color="#0000ff">bool</font> DeleteDataBytes<font color="#ff0000">);</font>
+
+<font color="#008040">/** evaluateValue.
+ *  A value structure will be evaluated and its components will be
+ *  returned.
+ */</font>
+ANODE evaluateValue<font color="#ff0000">(</font>Value <font color="#ff0000">*</font>Val<font color="#ff0000">,</font> <font color="#0000ff">unsigned char</font> <font color="#ff0000">**</font>DataBytes<font color="#ff0000">,</font>
+                    uint64 <font color="#ff0000">*</font>DataBits<font color="#ff0000">,</font> Timestamp <font color="#ff0000">**</font>Time<font color="#ff0000">);</font>
+
+<font color="#008040">/** unloadData.
+ *  Data will be copied from a Value structure to memory which will
+ *  be allocated accordingly to the size of the data.
+ */</font>
+ANODE unloadData<font color="#ff0000">(</font>Value <font color="#ff0000">*</font>Val<font color="#ff0000">,</font> <font color="#0000ff">unsigned char</font> <font color="#ff0000">**</font>DataBytes<font color="#ff0000">,</font> uint64 <font color="#ff0000">*</font>DataBits<font color="#ff0000">);</font>
+
+<font color="#008040">/** setDataBits.
+ *  The DataBits component of a Value will be generated.
+ */</font>
+ANODE setDataBits<font color="#ff0000">(</font>Value <font color="#ff0000">*</font>Val<font color="#ff0000">,</font> uint64 DataBits<font color="#ff0000">);</font>
+
+<font color="#008040">/** getDataBits.
+ *  The DataBits component of a Value will be decoded. Prior to 
+ *  decoding data bits, a validity check will be performed based on 
+ *  a magic value that was inserted into Value on creation.
+ */</font>
+ANODE getDataBits<font color="#ff0000">(</font>Value <font color="#ff0000">*</font>Val<font color="#ff0000">,</font> uint64 <font color="#ff0000">*</font>DataBits<font color="#ff0000">);</font>
+
+<font color="#008040">/** createTimestamp.
+ *  A timestamp will be created from current ticks and frequency
+ *  for sending out data to the peer.
+ */</font>
+ANODE createTimestamp<font color="#ff0000">(</font>Timestamp <font color="#ff0000">**</font>Time<font color="#ff0000">);</font>
+
+<font color="#008040">/** stampTimestamp
+ *  The receive portion of a Timestamp will be adjusted to 
+ *  current ticks and frequency.
+ */</font>
+ANODE stampTimestamp<font color="#ff0000">(</font>Timestamp <font color="#ff0000">*</font>Time<font color="#ff0000">);</font>
+
+<font color="#008040">/** requestAppForm.
+ *  A client requests for permission for sending an application form
+ *  to an ActiveNodes server system. An authorization is included
+ *  which requires a client to provide for a certificate.
+ *
+ *  In case of any failure the Request as well as the Certificate
+ *  will be deleted respectively rejected (if the request was already
+ *  issued to ANodesGate and returned with a failure = undefined)
+ */</font>
+ANODE requestAppForm<font color="#ff0000">(</font>ActiveNodesGate <font color="#ff0000">*</font>ANodesGate<font color="#ff0000">,</font>
+                     ActiveNodesRequest <font color="#ff0000">**</font>Request<font color="#ff0000">,</font>
+                     Value <font color="#ff0000">**</font>Certificate<font color="#ff0000">);</font>
+
+<font color="#008040">/** submitAppForm.
+ *  Recently prepared UpStreams and DownStreams will be submitted to 
+ *  an ActiveNodes hierarchy for processing. Subsequently, the
+ *  application has to wait for receiving a response.
+ */</font>
+ANODE submitAppForm<font color="#ff0000">(</font>ActiveNodesRequest <font color="#ff0000">*</font>Request<font color="#ff0000">);</font>
+
+<font color="#008040">/** freeAppForm.
+ *  An AppForm's ClientAlert will be cleared to zero in order to 
+ *  indicate that the AppForm is no longer in use. If ClientAlert
+ *  was different from ANodesAlert then its handle will be closed.
+ */</font>
+ANODE freeAppForm<font color="#ff0000">(</font>AppForm <font color="#ff0000">*</font>Form<font color="#ff0000">);</font>
+
+<font color="#008040">/** deleteAppForm.
+ *  A previously requested AppForm will be released and thus it will
+ *  be deleted along with deleting all structures that it consists of.
+ */</font>
+ANODE deleteAppForm<font color="#ff0000">(</font>AppForm <font color="#ff0000">**</font>Form<font color="#ff0000">);</font>
+
+<font color="#008040">/** freeANodesRequest.
+ *  An ANodesRequest's ClientAlert will be cleared to zero in order  
+ *  to indicate that the ANodesRequest is no longer in use. If its
+ *  ClientAlert was different from ANodesAlert then it will be closed.
+ */</font>
+ANODE freeANodesRequest<font color="#ff0000">(</font>ActiveNodesRequest <font color="#ff0000">*</font>Request<font color="#ff0000">);</font>
+
+<font color="#008040">/** deleteANodesRequest.
+ *  A request along with all structures that it consists of will be
+ *  deleted.
+ */</font>
+ANODE deleteANodesRequest<font color="#ff0000">(</font>ActiveNodesRequest <font color="#ff0000">**</font>Request<font color="#ff0000">);</font>
+
+<font color="#008040">/*----------------------------------------------------------------------
+ * The following functionality will be provided by an ActiveNodes server 
+ *----------------------------------------------------------------------
+ */
+
+/** Resource tracking
+ *  The following resource allocation/deallocation will be tracked
+ *  inside the memory management system
+ */</font>
+<font color="#0000ff">typedef enum</font>
+<font color="#ff0000">{</font>
+  RESOURCE_TYPE_HANDLE      <font color="#ff0000">= 0,</font>
+  RESOURCE_TYPE_MEMORY      <font color="#ff0000">= 1,</font>
+  RESOURCE_TYPE_THREAD      <font color="#ff0000">= 2,</font>
+  RESOURCE_TYPE_SEMAPHORE   <font color="#ff0000">= 3,</font>
+  RESOURCE_TYPE_VALUE       <font color="#ff0000">= 4,</font>
+  RESOURCE_TYPE_STREAM      <font color="#ff0000">= 5,</font>
+  RESOURCE_TYPE_APPFORM     <font color="#ff0000">= 6,</font>
+  RESOURCE_TYPE_REQUEST     <font color="#ff0000">= 7,</font>
+  RESOURCE_TYPE_COUNTER     <font color="#ff0000">= 8
+
+}</font> ResourceType<font color="#ff0000">;</font>
+
+<font color="#008040">/** trackResource
+ *  A tracking will count the allocation/deallocation of several
+ *  system resources.
+ */</font>
+ANODE trackResource<font color="#ff0000">(</font>ResourceType Type<font color="#ff0000">,</font> <font color="#0000ff">bool</font> Alloacated<font color="#ff0000">);</font>
+
+<font color="#008040">/** Memory.
+ *  Allocation and deallocation of memory.
+ */</font>
+ANODE Memory<font color="#ff0000">(</font><font color="#0000ff">void</font><font color="#ff0000">**</font> DataBytes<font color="#ff0000">,</font> uint64 DataLength<font color="#ff0000">);</font>
+
+<font color="#008040">/** lockMemory/unlockMemory
+ *  Synchronisation of memory management by locking/unlocking access.
+ */</font>
+ANODE lockMemory<font color="#ff0000">();</font>
+ANODE unlockMemory<font color="#ff0000">();</font>
+
+<font color="#008040">/** shutdownMemoryManagement
+ *  The memory management system will be shutdown. Normally all allocated
+ *  memory chunks should have been released at this point. It will be
+ *  reported as error if this is not the case.
+ */</font>
+ANODE shutdownMemoryManagement<font color="#ff0000">();</font>
+
+<font color="#008040">/** getActiveNodesGate.
+ *  A pointer to an ActiveNodesGate will be returned to the application.
+ *  An new ActiveNodesGate will be created in case it does not exist yet 
+ *  and all needed synchronization means will be supplied. Further a 
+ *  processing thread will be started that further deals with requests 
+ *  that arrive on the ActiveNodesGate.
+ *
+ *  LIVETIME: The sole purpose of an ActiveNodes hierarchy is serving
+ *            clients for DownStream and UpStream data. When the last
+ *            client has disconnected there is no reason for further
+ *            work of an ActiveNodes hierarchy. Therefore it will be
+ *            shutdown when the last client has gone.
+ */</font>
+ANODE getActiveNodesGate<font color="#ff0000">(</font>ActiveNodesGate <font color="#ff0000">**</font>ANodesGate<font color="#ff0000">);</font>
+
+<font color="#008040">/** serveANodesGate.
+ *  This is a thread function that serves all ANodes requests for the 
+ *  life time of an ANodes hierarchy. It finishes by its own when the
+ *  last ANodes hierarchy has disappeared from the root node chain.
+ */</font>
+DWORD WINAPI serveANodesGate<font color="#ff0000">(</font><font color="#0000ff">void</font> <font color="#ff0000">*</font>Context<font color="#ff0000">);</font>
+
+<font color="#008040">/** processAppForm.
+ *  This is a thread function that processes requests which have been
+ *  sent against an ANodesGate in an application form. The thread will
+ *  wait for more requests from the same AppForm until a client shuts
+ *  down communication by clearing its event handle in the AppForm.
+ */</font>
+DWORD WINAPI processAppForm<font color="#ff0000">(</font><font color="#0000ff">void</font> <font color="#ff0000">*</font>Context<font color="#ff0000">);</font>
+
+<font color="#008040">/** serveUpStream.
+ *  A series of UpStream requests will be served in a thread function.
+ *  Each UpStream may be reused for multiple requests.
+ */</font>
+DWORD WINAPI serveUpStream<font color="#ff0000">(</font><font color="#0000ff">void</font> <font color="#ff0000">*</font>Stream<font color="#ff0000">);</font>
+
+<font color="#008040">/** serveDownStream.
+ *  A series of DownStream events will be forwarded in a thread 
+ *  function. Each DownStream may be reused for multiple events.
+ */</font>
+DWORD WINAPI serveDownStream<font color="#ff0000">(</font><font color="#0000ff">void</font> <font color="#ff0000">*</font>Stream<font color="#ff0000">);</font>
+
+<font color="#008040">/** processUpStream.
+ *  A single UpStream request will be processed. The Data has to be
+ *  valid (DataBytes!=NULL and DataBits&gt;0) before a request will be 
+ *  recognized as valid and a processing can start. The UURI and/or 
+ *  the Path may exist or may not exist since they will be created if 
+ *  they do no exist. 
+ *
+ *  An UpStream is not able to return information to the caller since
+ *  its purpose is to transfer data in the other direction, from a
+ *  caller to an ActiveNodes hierarchy. The only visible reaction is
+ *  to but the ANodesStreaming flag to 'false' when it has reused
+ *  all UpStream data.
+ */</font>
+<font color="#0000ff">void</font> processUpStream<font color="#ff0000">(</font>Node<font color="#ff0000">*</font> UID<font color="#ff0000">,</font>ANodesStream <font color="#ff0000">*</font>UpStream<font color="#ff0000">);</font>
+
+<font color="#008040">/** receiveDownStream.
+ *  Content will be received from a DownStream UURI+Path. Since it will 
+ *  be filled into the Data Value, that Value has to be empty before
+ *  (DataBytes==NULL, DataBits==0).
+ *
+ *  If the timestamp inside the Data Value is zero then the current 
+ *  content on requested UURI+Path will be returned. Otherwise this
+ *  function will wait until data arrives that is newer than the 
+ *  timestamp in the Data Value.
+ *
+ *  The result status is returned by assigning valid DataBytes and 
+ *  DataBits values to the stream's Data component on success, 
+ *  respectively by leaving DataBytes=NULL and DataBits=0 in case of 
+ *  any failure or if data is missing on UURI+Path (one-time).
+ *
+ *  The ANodesStreaming flag is used for synchronizing access. The
+ *  ANodesGate sets the flag to true after data has been forwarded
+ *  to the requester. Afterwards it waits for the flag becoming false
+ *  before a next chunk of data is received from ANodes and forwarded
+ *  to the requester.
+ */</font>
+<font color="#0000ff">void</font> receiveDownStream<font color="#ff0000">(</font>Node<font color="#ff0000">*</font> UID<font color="#ff0000">,</font>ANodesStream <font color="#ff0000">*</font>DownStream<font color="#ff0000">);</font>
+
+<font color="#008040">/*----------------------------------------------------------------------
+ * System diagnostics
+ *----------------------------------------------------------------------
+ */
+
+/* All diagnostics information will be assigned to one of the following
+ * log level
+ */</font>
+<font color="#0000ff">typedef enum</font>
+<font color="#ff0000">{</font>
+  LOG_OFF      <font color="#ff0000">= 0,</font>
+  LOG_FATAL    <font color="#ff0000">= 1,</font>
+  LOG_ERROR    <font color="#ff0000">= 2,</font>
+  LOG_WARN     <font color="#ff0000">= 3,</font>
+  LOG_INFO     <font color="#ff0000">= 4,</font>
+  LOG_DIAG     <font color="#ff0000">= 5,</font>
+  LOG_DEBUG    <font color="#ff0000">= 6,</font>
+  LOG_ALL      <font color="#ff0000">= 7
+
+}</font> LogLevel<font color="#ff0000">;</font>
+
+<font color="#008040">/* Overall system log level and start time*/</font>
+<font color="#8080c0">#ifdef ACTIVE_NODES_IMPLEMENTATION</font>
+  LogLevel SysLogLevel <font color="#ff0000">=</font> LOG_DIAG<font color="#ff0000">;</font>
+  uint64 AppStartTicks <font color="#ff0000">= 0;</font>
+<font color="#8080c0">#else  </font>
+  <font color="#0000ff">extern</font> LogLevel SysLogLevel<font color="#ff0000">;</font>
+  <font color="#0000ff">extern</font> uint64 AppStartTicks<font color="#ff0000">;</font>
+<font color="#8080c0">#endif</font>
+
+<font color="#008040">/** logMessage.
+ *  A log message will be generated from provided text and numerical 
+ *  data and it will be sent to log output.
+ */</font>
+<font color="#0000ff">void</font> logMessageInt<font color="#ff0000">(</font>LogLevel MsgLogLevel<font color="#ff0000">,</font> <font color="#0000ff">char</font> <font color="#ff0000">*</font>Msg<font color="#ff0000">,</font> Timestamp <font color="#ff0000">*</font>Time<font color="#ff0000">,</font><font color="#0000ff">int</font> Val<font color="#ff0000">);</font>
+<font color="#0000ff">void</font> logMessage<font color="#ff0000">(</font>LogLevel MsgLogLevel<font color="#ff0000">,</font> <font color="#0000ff">char</font> <font color="#ff0000">*</font>Msg<font color="#ff0000">,</font> Timestamp <font color="#ff0000">*</font>Time<font color="#ff0000">,</font><font color="#0000ff">void</font> <font color="#ff0000">*</font>Val<font color="#ff0000">);</font>
+
+<font color="#008040">/** Error.
+ *  An error code along with a context will be converted into a log 
+ *  message.
+ */</font>
+ANODE Error<font color="#ff0000">(</font>ANODE ErrCode<font color="#ff0000">,</font> <font color="#0000ff">char</font><font color="#ff0000">*</font> Context<font color="#ff0000">,</font> <font color="#0000ff">void</font> <font color="#ff0000">*</font>Val<font color="#ff0000">);</font>
+
+<font color="#8080c0">#endif</font>
+
+</font>
+</code></pre>
+
+<p><hr><font size=2>Created: 2008-09-15 by <a href="http://wegalink.eu" target=_top>
+Eckhard Kantz</a></font>
+</body>
+</html>
